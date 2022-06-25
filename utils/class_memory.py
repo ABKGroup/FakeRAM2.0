@@ -57,4 +57,4 @@ class Memory:
     self.pin_dynamic_power_mW = 0.0013449
     self.cap_input_pf = 0.005
     self.cycle_time_ns = 0.1566
-    self.fo4_ps = 9.0632 
+    self.fo4_ps = 9.0632
