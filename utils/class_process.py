@@ -42,4 +42,4 @@ class Process:
       sys.exit(1)
     if (self.pin_pitch_nm % self.manufacturing_grid_nm != 0):
       print("Pin Pitch %d not a multiple of Manufacturing Grid %d" %(self.pin_pitch_nm, self.manufacturing_grid_nm))
-      sys.exit(1) 
+      sys.exit(1)
