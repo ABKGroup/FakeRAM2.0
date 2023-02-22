@@ -134,102 +134,14 @@ def create_lef( mem ):
 
     fid.write('  OBS\n')
 
-    ################
-    # Layer 1
-    ################
-
-    # No pins (full rect)  
+    # full rect
     pin_layer_number = metal_layer.replace(metal_prefix, "", 1)
     print("Pin layer number is", pin_layer_number)
-    for x in range(int(pin_layer_number) - 1) :
+    for x in range(int(pin_layer_number)) :
       dummy = x + 1
       fid.write('    LAYER %s%d ;\n' % (metal_prefix,dummy))
       fid.write('    RECT 0 0 %.3f %.3f ;\n' % (w,h))
 
-    ################
-    # Layer 2
-    ################
-
-    # No pins (full rect)
-    #fid.write('    LAYER %s2 ;\n' % metal_prefix)
-    #fid.write('    RECT 0 0 %.3f %.3f ;\n' % (w,h))
-
-    ################
-    # Layer 3
-    ################
-
-    #fid.write('    LAYER %s3 ;\n' % metal_prefix)
-    #fid.write('    RECT 0 0 %.3f %.3f ;\n' % (w,h))
-
-    ################
-    # Layer 4
-    ################
-
-    fid.write('    LAYER %s%d ;\n' % (metal_prefix,int(pin_layer_number)))
-
-    # Flipped therefore only vertical pg straps
-   
-
-
-    # Not flipped therefore pins on M4 and horizontal pg straps
-    
-
-    # Block from right of pins to left of straps and a block to the right
-    # of the straps (full height)
-    fid.write('    RECT %.3f 0 %.3f %.3f ;\n' % (min_pin_width, x_offset, h))
-    fid.write('    RECT %.3f 0 %.3f %.3f ;\n' % (w-x_offset, w, h))
-
-    # Walk through the same calculations to create pg straps and create obs
-    # from the bottom of the current strap to the top of the previous strap
-    # (start with the bottom edge)
-    prev_y = 0
-    y_step = y_offset
-    while y_step <= h - y_offset:
-        fid.write('    RECT %.3f %.3f %.3f %.3f ;\n' % (x_offset, prev_y, w-x_offset, y_step-supply_pin_half_width))
-        prev_y = y_step+supply_pin_half_width
-        y_step += supply_pin_pitch
-
-    # Create a block from the top of the last strap to the top edge
-    fid.write('    RECT %.3f %.3f %.3f %.3f ;\n' % (x_offset, prev_y, w-x_offset, h))
-
-    # Walk through same calculation as pins and draw from bottom of the
-    # current pin to the top of last pin (start with bottom edge)
-    prev_y = 0
-    y_step = y_offset - (y_offset % manufacturing_grid_um) + (mem.process.pin_width_um/2.0)
-
-    for i in range(int(bits)) :
-        fid.write('    RECT 0 %.3f %.3f %.3f ;\n' % (prev_y,min_pin_width,y_step-min_pin_width/2))
-        prev_y = y_step+min_pin_width/2
-        y_step += pin_pitch
-    y_step += group_pitch-pin_pitch
-    for i in range(int(bits)) :
-        fid.write('    RECT 0 %.3f %.3f %.3f ;\n' % (prev_y,min_pin_width,y_step-min_pin_width/2))
-        prev_y = y_step+min_pin_width/2
-        y_step += pin_pitch
-    y_step += group_pitch-pin_pitch
-    for i in range(int(bits)) :
-        fid.write('    RECT 0 %.3f %.3f %.3f ;\n' % (prev_y,min_pin_width,y_step-min_pin_width/2))
-        prev_y = y_step+min_pin_width/2
-        y_step += pin_pitch
-    y_step += group_pitch-pin_pitch
-    for i in range(int(addr_width)) :
-        fid.write('    RECT 0 %.3f %.3f %.3f ;\n' % (prev_y,min_pin_width,y_step-min_pin_width/2))
-        prev_y = y_step+min_pin_width/2
-        y_step += pin_pitch
-    y_step += group_pitch-pin_pitch
-    for i in range(3):
-        fid.write('    RECT 0 %.3f %.3f %.3f ;\n' % (prev_y,min_pin_width,y_step-min_pin_width/2))
-        prev_y = y_step+min_pin_width/2
-        y_step += pin_pitch
-
-    # Final shapre from top of last pin to top edge
-    fid.write('    RECT 0 %.3f %.3f %.3f ;\n' % (prev_y,min_pin_width,h))
-
-    # Overlap layer (full rect)
-    fid.write('    LAYER OVERLAP ;\n')
-    fid.write('    RECT 0 0 %.3f %.3f ;\n' % (w,h))
-
-    # Finish up LEF file
     fid.write('  END\n')
     fid.write('END %s\n' % name)
     fid.write('\n')
