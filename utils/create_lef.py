@@ -35,8 +35,8 @@ def create_lef( mem ):
     #########################################
     # Calculate the pin spacing (pitch)
     #########################################
+    # rd_out (#bits) + wd_in (#bits) + addr_in (#addr_width) + we_in/ce_in/clk
     number_of_pins = 2*bits + addr_width + 3
-    #number_of_pins = 3*bits + addr_width + 3 # 3 * bits -> write data, read data, write mask; + 3 -> clk, we_i, ce_i
     number_of_tracks_available = math.floor((h - 2*y_offset) / min_pin_pitch)
     number_of_spare_tracks = number_of_tracks_available - number_of_pins
 
@@ -52,11 +52,9 @@ def create_lef( mem ):
     track_count -= 1
 
     pin_pitch = min_pin_pitch * track_count
-    #group_pitch = math.floor((number_of_tracks_available - number_of_pins*track_count) / 4)*mem.process.pin_pitch_um #what is this / 4 ?
-    ## the following 4 lines are changes made by JC
-    extra = math.floor((number_of_tracks_available - number_of_pins*track_count) / 4)
-    if extra == 0:
-        extra = 1
+    # Divide by the remaining 'spare' tracks into the inter-group spaces
+    #  [4 groups -> 3 spaces]
+    extra = math.floor((number_of_tracks_available - number_of_pins*track_count) / 3)
     group_pitch = extra*mem.process.pin_pitch_um
     #########################################
     # LEF HEADER
@@ -84,22 +82,18 @@ def create_lef( mem ):
     ########################################
 
     y_step = y_offset - (y_offset % manufacturing_grid_um) + (mem.process.pin_width_um/2.0)
-    #for i in range(int(bits)) :
-    #    y_step = lef_add_pin( fid, mem, 'w_mask_in[%d]'%i, True, y_step, pin_pitch ) # lef_add_pin returns y_step + pitch; essentially y_step = y_step + pitch
-
-    #y_step += group_pitch-pin_pitch # why is this required ? I think what is happening that the types of pins are divided into 5 groups : w_mask bus, rd_out bus, wd_in bus, addr_in bus and misc. These "groups" are not separated by the pin_pitch, rather they're separated by more distance ( a function of group_pitch and pin pitch )
     for i in range(int(bits)) :
         y_step = lef_add_pin( fid, mem, 'rd_out[%d]'%i, False, y_step, pin_pitch )
 
-    y_step += group_pitch-pin_pitch
+    y_step += group_pitch
     for i in range(int(bits)) :
         y_step = lef_add_pin( fid, mem, 'wd_in[%d]'%i, True, y_step, pin_pitch )
 
-    y_step += group_pitch-pin_pitch
+    y_step += group_pitch
     for i in range(int(addr_width)) :
         y_step = lef_add_pin( fid, mem, 'addr_in[%d]'%i, True, y_step, pin_pitch )
 
-    y_step += group_pitch-pin_pitch
+    y_step += group_pitch
     y_step = lef_add_pin( fid, mem, 'we_in', True, y_step, pin_pitch )
     y_step = lef_add_pin( fid, mem, 'ce_in', True, y_step, pin_pitch )
     y_step = lef_add_pin( fid, mem, 'clk',   True, y_step, pin_pitch )
