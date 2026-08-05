@@ -1,0 +1,33 @@
+name: Run CI
+on:
+  push:
+  pull_request:
+jobs:
+  get_tests:
+    runs-on: ubuntu-latest
+    outputs:
+      test_files: ${{ steps.set-matrix.outputs.test_files }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Generate matrix of test files
+        id: set-matrix
+        run: |
+          echo "test_files=["$(ls test/*_test.py | sed 's/^/"/; s/$/"/' | paste -sd, -)"]" >> $GITHUB_OUTPUT
+  run_tests:
+    needs: get_tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        test_file: ${{ fromJson(needs.get_tests.outputs.test_files) }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Run Test File
+        run: python ${{ matrix.test_file }}
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test/results

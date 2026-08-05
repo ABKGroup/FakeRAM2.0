@@ -1,3 +1,5 @@
+Development and support has moved to https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts/tree/master/tools/FakeRAM2.0
+
 # FakeRAM2.0
 
 FakeRAM2.0 aims to build a fake memory compiler which can be used by Physical Design research teams to get memory models (Liberty, LEF and Verilog) compatible with the PDK of their choice. <br/>
